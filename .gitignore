@@ -1,7 +1,7 @@
 .gradle
 
 .kotlin
-.build
+build
 
 .devenv_docker_container_id
 
