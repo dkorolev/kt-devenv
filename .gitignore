@@ -3,6 +3,8 @@
 .kotlin
 build
 
+.exrc
+
 .devenv_docker_container_id
 
 .bash_history
