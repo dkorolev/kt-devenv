@@ -1,0 +1,11 @@
+.gradle
+
+.kotlin
+.build
+
+.devenv_docker_container_id
+
+.bash_history
+
+.vim*
+*.swp
