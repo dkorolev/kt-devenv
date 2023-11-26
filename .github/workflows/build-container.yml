@@ -1,0 +1,32 @@
+name: ghcr push
+
+on:
+  workflow_dispatch:
+
+env:
+  GHCR_USERNAME: ${{ github.actor }}
+  GHCR_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+  GIT_SHA: ${{ github.sha }}  # NOTE(dkorolev): This will not do what it should for PR-based action triggers!
+  GITHUB_REPO: ${{ github.repository }}
+
+jobs:
+  push-to-ghcr:
+    name: ghcr push
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: git clone
+        uses: actions/checkout@v3
+      - name: docker build
+        run: |
+          sed -i "s/gradle-devenv/gradle-devenv-${GIT_SHA:0:7}/" Dockerfile
+          cat Dockerfile
+          docker build -t "ghcr.io/${GHCR_USERNAME}/${GITHUB_REPO}:${GIT_SHA:0:7}" .
+      - name: docker login
+        run: echo "${GHCR_PASSWORD}" | docker login ghcr.io --username "${GHCR_USERNAME}" --password-stdin
+      - name: docker push
+        run: |
+          docker push "ghcr.io/${GHCR_USERNAME}/${GITHUB_REPO}:${GIT_SHA:0:7}"
+          docker tag "ghcr.io/${GHCR_USERNAME}/${GITHUB_REPO}:${GIT_SHA:0:7}" "ghcr.io/${GHCR_USERNAME}/${GITHUB_REPO}:latest"
+          docker push "ghcr.io/${GHCR_USERNAME}/${GITHUB_REPO}:latest"
