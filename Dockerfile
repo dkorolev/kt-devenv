@@ -13,12 +13,16 @@ RUN apk add gradle
 
 RUN apk add git vim
 
+# TODO(dkorolev): Figure out if this is needed at all one day.
+# Maybe creating a user dynamically upon starting, from a script, is just safer. Can also keep the workdir.
+
 RUN addgroup -g ${ARG_GID} ${ARG_USER} || \
     echo "Group ${ARG_GID} already exists, OK if the group is 999, and when run by a Github action, suspicious otherwise."
 
 RUN adduser -D -u ${ARG_UID} -G ${ARG_USER} ${ARG_USER} || \
     (adduser -D -u ${ARG_UID} ${ARG_USER} && \
-     echo "The 'adduser: unknown group runner' error is OK when run by Github action runner.")
+     echo "The 'adduser: unknown group runner' error is OK when run by Github action runner.") || \
+     echo "Something even more unexpected happened, but it does not matter when run as a Github action."
 
 RUN mkdir -p /usr/local/bin
 RUN echo -e '#!/bin/bash\ngradle clean' >/usr/local/bin/c
